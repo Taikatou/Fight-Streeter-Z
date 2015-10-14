@@ -43,7 +43,6 @@ protected:
 	CSprite*		newGame;
 	hadoken_vec*	projectiles;
 	sprite_vec*		projectileLines;
-	CNode*			g_SceneRoot;
 	float			pushBack;
 public:
 

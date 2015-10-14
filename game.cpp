@@ -34,6 +34,7 @@ Game::~Game()
 		delete[] lifeBars;
 	}
 	delete g_pExplosionManager;
+
 }
 // Pause game handler that is called when the user taps the pause sprite
 void Game::pauseGame()
@@ -99,7 +100,6 @@ void Game::Update(float deltaTime, float alphaMul)
 				g_pInput->Reset();
 			}
 		}
-		OutputLine(m_X);
 	}
 }
 
@@ -108,12 +108,12 @@ void Game::DBZLoop()
 	float toMove;
 	if (!g_pInput->m_Touched && g_pInput->m_PrevTouched)
 	{
-		toMove = (float)(IwGxGetDeviceHeight() / 100);
+		toMove = (float)(ScreenHeight / 100);
 		g_pInput->Reset();
 	}
 	else
 	{
-		toMove = -((float)IwGxGetDeviceHeight() / 1500);
+		toMove = -((float)ScreenHeight / 1500);
 	}
 
 	OutputLine(toMove);
@@ -315,7 +315,7 @@ void Game::FingerUp()
 		float temp;
 		if (player[PLAYER_ONE]->getPrevMovement() == 1)
 		{
-			temp = (float)(player[PLAYER_ONE]->m_Y + (IwGxGetDeviceHeight() / 20));
+			temp = (float)(player[PLAYER_ONE]->m_Y + (ScreenHeight / 20));
 			if (temp > player[PLAYER_TWO]->m_Y)
 			{
 				temp = player[PLAYER_TWO]->m_Y;
@@ -324,7 +324,7 @@ void Game::FingerUp()
 		}
 		else if (player[PLAYER_ONE]->getPrevMovement() == 0)
 		{
-			temp = (float)(player[PLAYER_ONE]->m_Y - (IwGxGetDeviceHeight() / 20));
+			temp = (float)(player[PLAYER_ONE]->m_Y - (ScreenHeight / 20));
 			if (temp < 0)
 			{
 				temp = 0;
@@ -408,7 +408,7 @@ void Game::CheckAINextMove()
 		// check if we should kick
 		if (distance == 0)
 		{
-			if (player[PLAYER_ONE]->m_Y > IwGxGetDeviceHeight() / 15)
+			if (player[PLAYER_ONE]->m_Y > ScreenHeight / 15)
 			{
 				Kick(PLAYER_TWO, 1.0f);
 				player[PLAYER_TWO]->setPrevMovement(2);
@@ -425,9 +425,9 @@ void Game::CheckAINextMove()
 			//check if we should dash left
 			if (player[PLAYER_ONE]->getPrevMovement() != 4)
 			{
-				if (IwGxGetDeviceHeight() / 6 < distance)
+				if (ScreenHeight / 6 < distance)
 				{
-					float temp = CheckPlayer1Collision((float)(player[PLAYER_TWO]->m_Y - (IwGxGetDeviceHeight() / 15)));
+					float temp = CheckPlayer1Collision((float)(player[PLAYER_TWO]->m_Y - (ScreenHeight / 15)));
 					Dash(PLAYER_TWO, temp);
 					player[PLAYER_TWO]->setPrevMovement(0);
 				}
@@ -439,7 +439,7 @@ void Game::CheckAINextMove()
 				// check if we should move left
 				else
 				{
-					float temp = CheckPlayer1Collision(player[PLAYER_TWO]->m_Y - (IwGxGetDeviceHeight() / 160));
+					float temp = CheckPlayer1Collision(player[PLAYER_TWO]->m_Y - (ScreenHeight / 160));
 					player[PLAYER_TWO]->m_Y = temp;
 					player[PLAYER_TWO]->setPrevMovement(0);
 				}
@@ -448,7 +448,7 @@ void Game::CheckAINextMove()
 			{
 				if (projectiles[PLAYER_ONE].size() > 0)
 				{
-					if (projectiles[PLAYER_ONE].at(0)->m_Y - player[PLAYER_TWO]->m_Y < IwGxGetDeviceHeight() / 10)
+					if (projectiles[PLAYER_ONE].at(0)->m_Y - player[PLAYER_TWO]->m_Y < ScreenHeight / 10)
 					{
 						Block(PLAYER_TWO);
 						player[PLAYER_TWO]->setPrevMovement(5);
@@ -484,7 +484,7 @@ void Game::Dash(bool isAI, float distance)
 	float distanceTraveled = (float)(abs(player[isAI]->m_Y - distance));
 
 
-	float speed = (IwGxGetDeviceHeight() / 8);
+	float speed = (ScreenHeight / 8);
 
 
 	float time = distanceTraveled / speed;
@@ -504,9 +504,9 @@ void Game::PushBack(bool isAI, float position)
 	{
 		position = 0;
 	}
-	else if (position > IwGxGetDeviceHeight())
+	else if (position > ScreenHeight)
 	{
-		position = IwGxGetDeviceHeight();
+		position = ScreenHeight;
 	}
 
 	Animate(isAI);
@@ -541,9 +541,9 @@ void Game::CheckLife(bool isAI)
 		{
 			gameOverSprite = new CSprite();
 			gameOverSprite->m_X = MessageLabel->m_X * 1.5f;
-			gameOverSprite->m_Y = (float)(IwGxGetDeviceHeight() / 2);
+			gameOverSprite->m_Y = (float)(ScreenHeight / 2);
 			gameOverSprite->SetImage(g_pResources->getPauseIcon());
-			gameOverSprite->m_ScaleX = (float)((IwGxGetDeviceWidth() / 8) / gameOverSprite->GetImage()->GetWidth());
+			gameOverSprite->m_ScaleX = (float)((ScreenWidth / 8) / gameOverSprite->GetImage()->GetWidth());
 			gameOverSprite->m_ScaleY = gameOverSprite->m_ScaleX;
 			gameOverSprite->m_AnchorX = 0.5;
 			gameOverSprite->m_AnchorY = 0.5;
@@ -553,7 +553,7 @@ void Game::CheckLife(bool isAI)
 	else
 	{
 		float percent = ((float)player[isAI]->getLife() / 100);
-		lifeBars[isAI]->m_ScaleY = (float)((IwGxGetDeviceHeight() / 4) * (percent) / lifeBars[isAI]->GetImage()->GetWidth());
+		lifeBars[isAI]->m_ScaleY = (float)((ScreenHeight / 4) * (percent) / lifeBars[isAI]->GetImage()->GetWidth());
 	}
 }
 
@@ -622,14 +622,14 @@ void Game::CheckInputEvents(int i)
 	switch (i)
 	{
 	case 0:
-		temp = player[PLAYER_ONE]->m_Y - IwGxGetDeviceHeight() / 160;
-		if (temp > IwGxGetDeviceHeight() / 50)
+		temp = player[PLAYER_ONE]->m_Y - ScreenHeight / 160;
+		if (temp > ScreenHeight / 50)
 		{
 			player[PLAYER_ONE]->m_Y = temp;
 		}
 		break;
 	case 1:
-		temp = player[PLAYER_ONE]->m_Y + IwGxGetDeviceHeight() / 160;
+		temp = player[PLAYER_ONE]->m_Y + ScreenHeight / 160;
 		if (temp < player[PLAYER_TWO]->m_Y)
 		{
 			player[PLAYER_ONE]->m_Y = temp;
@@ -661,9 +661,9 @@ void Game::InitialiseHadoken(CSprite* previous, bool isAI)
 	temp->m_AnchorX = previous->m_AnchorX;
 	temp->m_AnchorY = previous->m_AnchorY;
 	// Fit player to Device size
-	temp->m_ScaleX = (float)(IwGxGetDeviceWidth() / 8) / temp->GetImage()->GetWidth();
+	temp->m_ScaleX = (float)(ScreenWidth / 8) / temp->GetImage()->GetWidth();
 	temp->m_ScaleY = temp->m_ScaleX;
-	temp->setWidth(IwGxGetDeviceWidth() / 8);
+	temp->setWidth(ScreenWidth / 8);
 	projectiles[isAI].push_back(temp);
 
 	CSprite* tempLine = new CSprite();
@@ -672,7 +672,7 @@ void Game::InitialiseHadoken(CSprite* previous, bool isAI)
 	tempLine->m_AnchorX = 0.5;
 	tempLine->m_AnchorY = (float)(isAI); /*1.0 for AI, 0.0 fir player*/
 	tempLine->SetImage(g_pResources->getGreenImage());
-	tempLine->m_ScaleX = (float)(IwGxGetDeviceWidth() / 50) / lifeBars[isAI]->GetImage()->GetWidth();
+	tempLine->m_ScaleX = (float)(ScreenWidth / 50) / lifeBars[isAI]->GetImage()->GetWidth();
 
 	projectileLines[isAI].push_back(tempLine);
 	AddChild(projectileLines[isAI].back());
@@ -698,13 +698,13 @@ void Game::ShootHadoken(bool isAI, Hadoken* temp)
 	float distance;
 	if (isAI)
 	{
-		temp->m_Y -= (IwGxGetDeviceWidth() / 8);
-		distance = temp->m_Y - IwGxGetDeviceHeight();
+		temp->m_Y -= (ScreenWidth / 8);
+		distance = temp->m_Y - ScreenHeight;
 	}
 	else
 	{
-		temp->m_Y += (IwGxGetDeviceWidth() / 8);
-		distance = temp->m_Y + IwGxGetDeviceHeight();
+		temp->m_Y += (ScreenWidth / 8);
+		distance = temp->m_Y + ScreenHeight;
 	}
 
 	m_Tweener.Tween(3.0f,
@@ -758,7 +758,7 @@ void Game::RestartGame()
 	RemoveChild(gameOverSprite);
 	NewGame();
 
-	ResetFighter(PLAYER_ONE, (float)(IwGxGetDeviceHeight() / 3));
+	ResetFighter(PLAYER_ONE, (float)(ScreenHeight / 3));
 	ResetFighter(PLAYER_TWO, (float)(player[PLAYER_ONE]->m_Y * 2));
 
 	ResetLine(PLAYER_ONE);
@@ -774,34 +774,34 @@ void Game::Render()
 void Game::initUI()
 {
 	CSprite* background = new CSprite();
-	background->m_X = (float)(IwGxGetDeviceWidth() / 2);
-	background->m_Y = (float)(IwGxGetDeviceHeight() / 2);
+	background->m_X = (float)(ScreenWidth / 2);
+	background->m_Y = (float)(ScreenHeight / 2);
 	background->SetImage(g_pResources->getMenuBG());
 	background->m_AnchorX = 0.5f;
 	background->m_AnchorY = 0.5f;
 	// Fit background to Device size
-	background->m_ScaleX = (float)(IwGxGetDeviceWidth()) / background->GetImage()->GetWidth();
-	background->m_ScaleY = (float)IwGxGetDeviceHeight() / background->GetImage()->GetHeight();
+	background->m_ScaleX = (float)(ScreenWidth) / background->GetImage()->GetWidth();
+	background->m_ScaleY = (float)ScreenHeight / background->GetImage()->GetHeight();
 	AddChild(background);
 
 	CSprite* FloorSprite = new CSprite();
 	FloorSprite->m_X = (float)(background->m_X / 4);
-	FloorSprite->m_Y = (float)(IwGxGetDeviceHeight() / 2);
+	FloorSprite->m_Y = (float)(ScreenHeight / 2);
 	FloorSprite->SetImage(g_pResources->getFloorImage());
 	FloorSprite->m_AnchorX = 0.5f;
 	FloorSprite->m_AnchorY = 0.5f;
 	// Fit FloorSprite to Device size
-	FloorSprite->m_ScaleX = (float)(IwGxGetDeviceWidth() / 4) / FloorSprite->GetImage()->GetWidth();
-	FloorSprite->m_ScaleY = (float)IwGxGetDeviceHeight() / FloorSprite->GetImage()->GetHeight();
+	FloorSprite->m_ScaleX = (float)(ScreenWidth / 4) / FloorSprite->GetImage()->GetWidth();
+	FloorSprite->m_ScaleY = (float)ScreenHeight / FloorSprite->GetImage()->GetHeight();
 	AddChild(FloorSprite);
 
 	player = new Fighter*[2];
 	lifeBars = new CSprite*[2];
 
-	CreateFighter(PLAYER_ONE, (float)(IwGxGetDeviceHeight() / 3));
+	CreateFighter(PLAYER_ONE, (float)(ScreenHeight / 3));
 	CreateFighter(PLAYER_TWO, (float)(player[PLAYER_ONE]->m_Y * 2));
 	CreateLifeBar(PLAYER_ONE, 0);
-	CreateLifeBar(PLAYER_TWO, IwGxGetDeviceHeight());
+	CreateLifeBar(PLAYER_TWO, ScreenHeight);
 
 
 	//2 special buttons
@@ -810,14 +810,14 @@ void Game::initUI()
 	int i;
 	for (i = 0; i < NUM_BUTTONS; i++)
 	{
-		CreateButton(i, FloorSprite->m_X, (float)(IwGxGetDeviceHeight() / 5) * (i + 1));
+		CreateButton(i, FloorSprite->m_X, (float)(ScreenHeight / 5) * (i + 1));
 	}
 
-	CreateButton(i, FloorSprite->m_X + (IwGxGetDeviceWidth() / 8), buttons[i - 2]->m_Y + (float)(IwGxGetDeviceHeight() / 8));
+	CreateButton(i, FloorSprite->m_X + (ScreenWidth / 8), buttons[i - 2]->m_Y + (float)(ScreenHeight / 8));
 
 	i++;
 
-	CreateButton(i, buttons[i - 1]->m_X, buttons[i - 2]->m_Y + (float)(IwGxGetDeviceHeight() / 8));
+	CreateButton(i, buttons[i - 1]->m_X, buttons[i - 2]->m_Y + (float)(ScreenHeight / 8));
 
 	//flip the first button as it is the same as the second
 	buttons[0]->m_Angle += 180.0f;
@@ -827,7 +827,7 @@ void Game::initUI()
 
 	MessageLabel = new CLabel();
 	MessageLabel->m_X = IwGxGetDisplayWidth() / 2;
-	MessageLabel->m_Y = IwGxGetDeviceHeight() / 2;
+	MessageLabel->m_Y = ScreenHeight / 2;
 	MessageLabel->m_W = FONT_DESIGN_WIDTH;
 	MessageLabel->m_H = actualFontHeight;
 	MessageLabel->m_AlignHor = IW_2D_FONT_ALIGN_LEFT;
@@ -843,31 +843,31 @@ void Game::initUI()
 void Game::CreateLifeBar(bool isAI, float y)
 {
 	lifeBars[isAI] = new CSprite();
-	lifeBars[isAI]->m_X = (float)(IwGxGetDeviceWidth() - (IwGxGetDeviceWidth() / 15));
+	lifeBars[isAI]->m_X = (float)(ScreenWidth - (ScreenWidth / 15));
 	lifeBars[isAI]->m_Y = y;
 	lifeBars[isAI]->SetImage(g_pResources->getGreenImage());
 	lifeBars[isAI]->m_AnchorX = 0.0f;
 	lifeBars[isAI]->m_AnchorY = (float)(isAI); /*1.0 for AI, 0.0 fir player*/
 	// Fit player to Device size
 	ResetLine(isAI);
-	lifeBars[isAI]->m_ScaleX = (float)(IwGxGetDeviceWidth() / 50) / lifeBars[isAI]->GetImage()->GetWidth();
+	lifeBars[isAI]->m_ScaleX = (float)(ScreenWidth / 50) / lifeBars[isAI]->GetImage()->GetWidth();
 	AddChild(lifeBars[isAI]);
 }
 
 void Game::ResetLine(bool isAI)
 {
-	lifeBars[isAI]->m_ScaleY = (float)(IwGxGetDeviceHeight() / 4) / lifeBars[isAI]->GetImage()->GetWidth();
+	lifeBars[isAI]->m_ScaleY = (float)(ScreenHeight / 4) / lifeBars[isAI]->GetImage()->GetWidth();
 }
 
 void Game::CreateFighter(bool isAI, float y)
 {
 	player[isAI] = new Fighter();
-	player[isAI]->m_X = (float)(IwGxGetDeviceWidth() / 4);
+	player[isAI]->m_X = (float)(ScreenWidth / 4);
 	ResetFighter(isAI, y);
 	player[isAI]->m_AnchorX = 0.0f;
 	player[isAI]->m_AnchorY = (float)(!(isAI)) /*1.0 for player 0.0 for AI*/;
 	// Fit player to Device size
-	player[isAI]->m_ScaleX = (float)(IwGxGetDeviceWidth() / 8) / player[isAI]->GetImage()->GetWidth();
+	player[isAI]->m_ScaleX = (float)(ScreenWidth / 8) / player[isAI]->GetImage()->GetWidth();
 	player[isAI]->m_ScaleY = player[isAI]->m_ScaleX;
 	AddChild(player[isAI]);
 }
@@ -890,7 +890,7 @@ void Game::CreateButton(int i, float x, float y)
 	buttons[i]->m_AnchorX = 0.5f;
 	buttons[i]->m_AnchorY = 0.5f;
 	// Fit buttons[i] to Device size
-	buttons[i]->m_ScaleX = (float)(IwGxGetDeviceWidth() / 10) / buttons[i]->GetImage()->GetWidth();
+	buttons[i]->m_ScaleX = (float)(ScreenWidth / 10) / buttons[i]->GetImage()->GetWidth();
 	buttons[i]->m_ScaleY = buttons[i]->m_ScaleX;
 	buttons[i]->m_Angle = 270.0f;
 	AddChild(buttons[i]);
@@ -898,7 +898,10 @@ void Game::CreateButton(int i, float x, float y)
 
 void Game::Init()
 {
-	m_Angle = 90.0f;
+	//m_Angle = 90.0f;
+
+	ScreenWidth = IwGxGetDeviceWidth();
+	ScreenHeight = IwGxGetDeviceHeight();
 
 	gameOverSprite = NULL;
 
@@ -906,7 +909,7 @@ void Game::Init()
 
 	initUI();
 
-	pushBack = (IwGxGetDeviceHeight() / 20);
+	pushBack = (ScreenHeight / 20);
 
 	projectiles = new hadoken_vec[2];
 
